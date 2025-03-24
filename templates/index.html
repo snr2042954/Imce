@@ -10,11 +10,11 @@
       margin: 0;
       padding: 0;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      background-color; white;
       color: #333;
     }
     header {
-      background-color: #333;
+      background-color: #d50060;
       color: #fff;
       padding: 1rem 2rem;
     }
@@ -53,7 +53,7 @@
     footer {
       text-align: center;
       padding: 1rem;
-      background-color: #333;
+      background-color: #d50060;
       color: #fff;
     }
     /* Streaming Container (Avatar) Styles */
@@ -110,13 +110,20 @@
     #startSessionBtn {
       display: none;
       position: absolute;
-      top: 50%;
+      top: 70%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 4;
-      padding: 10px 20px;
       font-size: 1rem;
+      background-color: #d50060; /* your pink */
+      color: white;               /* text color */
+      padding: 10px 20px;
+      border-radius: 30px;       /* pill shape */
       cursor: pointer;
+      z-index: 10;
+      font-weight: bold;
+      text-align: center;
+      border: none;         /* remove border */
+      box-shadow: none;
     }
     /* Overlay for controls */
     #overlay {
@@ -132,6 +139,7 @@
       gap: 5px;
       z-index: 3;
     }
+
     /* Chat history styling (only shows chat messages) */
     #chatHistory {
       max-height: 80px;
@@ -152,6 +160,7 @@
       border-radius: 4px;
       margin-right: 5px;
       font-size: 0.9rem;
+      font-weight: bold;
     }
     #talk-section input {
       flex-grow: 1;
@@ -159,28 +168,33 @@
       color: #000;
     }
     #talk-section button {
-      background-color: #007bff;
+      background-color: #d50060;
       color: #fff;
       cursor: pointer;
+      font-weight: bold;
     }
     /* Toggle chat history button style */
     #toggleChatBtn {
-      background-color: #28a745;
+      background-color: #d50060;
       color: #fff;
       cursor: pointer;
+      font-weight: bold;
     }
     /* Chat prompt styling: visible only in minimized mode */
     #chatPrompt {
       position: absolute;
-      top: 50%;
+      top: 80%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 1rem;
-      background-color: rgba(255, 255, 255, 0.7); /* optional for readability */
-      padding: 5px 10px;
-      border-radius: 4px;
+      font-size: 0.7rem;
+      background-color: #d50060; /* your pink */
+      color: white;               /* text color */
+      padding: 7px 15px;
+      border-radius: 30px;       /* pill shape */
       cursor: pointer;
       z-index: 10;
+      font-weight: bold;
+      text-align: center;
     }
 
     /* Hide the chat prompt when the container is expanded */
@@ -219,7 +233,7 @@
 <!-- Streaming Container (Avatar) -->
 <div id="heygen-streaming-embed">
   <!-- Chat prompt overlay for minimized state -->
-  <div id="chatPrompt">Click here to chat</div>
+  <div id="chatPrompt">Klik hier om te chatten</div>
   <!-- Fallback image is always shown when no session is active -->
   <img id="fallbackImage" src="{{ url_for('static', filename='imcepicture.jpg') }}" alt="Avatar fallback">
   <!-- The video element fills the container (hidden until session starts) -->
@@ -232,9 +246,9 @@
     <div id="chatHistory" style="display:none;"></div>
     <!-- Talk Section with Toggle, Text Field, and Talk Button -->
     <div id="talk-section">
-      <button id="toggleChatBtn">Toggle Chat History</button>
-      <input id="taskInput" type="text" placeholder="Enter text for avatar to speak">
-      <button id="talkBtn">Talk (LLM)</button>
+      <button id="toggleChatBtn">Zie de chat</button>
+      <input id="taskInput" type="text" placeholder="Je vraag of bericht ...">
+      <button id="talkBtn">Stuur</button>
     </div>
   </div>
 </div>
