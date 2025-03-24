@@ -38,6 +38,11 @@
     chatHistory.scrollTop = chatHistory.scrollHeight;
   }
 
+  // Remove emoji and trim length to 200 chars
+  function sanitizeText(text) {
+    return text.replace(/[\p{Emoji_Presentation}|\p{Extended_Pictographic}]/gu, '').substring(0, 200);
+  }
+
   // Update display: if no session, always show fallback image; if session active, show video.
   function updateFallbackImage() {
     if (!sessionInfo) {
@@ -99,7 +104,6 @@
 
   // Configuration
   const API_CONFIG = {
-    apiKey: "MDIxZTk5N2RhOGQyNGZkOTlmM2JjOTg0MDA3Mjc0NjItMTc0MjM5NDc2NQ==",
     serverUrl: "https://api.heygen.com",
   };
 
@@ -250,27 +254,30 @@
   }
 
   // 5. Send text to avatar and update chat history with user message
+  // 5. Send text to avatar and update chat history with user message
   async function sendText(text, taskType = "talk") {
     if (!sessionInfo) {
       console.error("No active session");
       return;
     }
 
-    if (!text || text.trim().length === 0) {
-      console.warn("Attempted to send empty text. Ignoring.");
+    const sanitized = sanitizeText(text);
+
+    if (!sanitized || sanitized.trim().length === 0) {
+      console.warn("Attempted to send empty or invalid text. Ignoring.");
       return;
     }
 
     const payload = {
       session_id: sessionInfo.session_id,
-      text: text,
+      text: sanitized,
       task_type: taskType,
     };
 
-    console.log("Sending task payload to Heygen:", payload);
+    console.log("Sending sanitized task payload to Heygen:", payload);
 
     try {
-      updateChatHistory(`You: ${text}`);
+      updateChatHistory(`You: ${sanitized}`);
       const response = await fetch(`${API_CONFIG.serverUrl}/v1/streaming.task`, {
         method: "POST",
         headers: {
@@ -288,6 +295,7 @@
       console.error("Error sending text", err);
     }
   }
+
 
   // 6. Close session (triggered by inactivity or other conditions)
   async function closeSession() {
