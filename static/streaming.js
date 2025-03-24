@@ -94,9 +94,8 @@
     }
   });
 
-  // Hardcoded values for Avatar ID and Voice ID
+  // Hardcoded values for Avatar ID
   const AVATAR_ID = "Santa_Fireplace_Front_public";
-  const VOICE_ID = ""; // Set your desired Voice ID if needed
 
   // Configuration
   const API_CONFIG = {
@@ -104,23 +103,22 @@
     serverUrl: "https://api.heygen.com",
   };
 
+
+
   // 1. Get session token
   async function getSessionToken() {
-    try {
-      const response = await fetch(`${API_CONFIG.serverUrl}/v1/streaming.create_token`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Api-Key": API_CONFIG.apiKey,
-        },
-      });
-      const data = await response.json();
-      sessionToken = data.data.token;
-      console.log("Session token obtained");
-    } catch (err) {
-      console.error("Error obtaining session token", err);
-    }
+  try {
+    const response = await fetch("/api/get-token", {
+      method: "POST",
+    });
+    const data = await response.json();
+    sessionToken = data.data.token;
+    console.log("Session token obtained");
+  } catch (err) {
+    console.error("Error obtaining session token", err);
   }
+}
+
 
   // 2. Connect WebSocket and process messages from the avatar
   async function connectWebSocket(sessionId) {
@@ -156,10 +154,6 @@
           quality: "high",
           avatar_name: AVATAR_ID,
           language: "nl",
-          voice: {
-            voice_id: VOICE_ID,
-            rate: 1.0,
-          },
           version: "v2",
           video_encoding: "H264",
         }),
@@ -261,20 +255,35 @@
       console.error("No active session");
       return;
     }
+
+    if (!text || text.trim().length === 0) {
+      console.warn("Attempted to send empty text. Ignoring.");
+      return;
+    }
+
+    const payload = {
+      session_id: sessionInfo.session_id,
+      text: text,
+      task_type: taskType,
+    };
+
+    console.log("Sending task payload to Heygen:", payload);
+
     try {
       updateChatHistory(`You: ${text}`);
-      await fetch(`${API_CONFIG.serverUrl}/v1/streaming.task`, {
+      const response = await fetch(`${API_CONFIG.serverUrl}/v1/streaming.task`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${sessionToken}`,
         },
-        body: JSON.stringify({
-          session_id: sessionInfo.session_id,
-          text: text,
-          task_type: taskType,
-        }),
+        body: JSON.stringify(payload),
       });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`Heygen API responded with status ${response.status}:`, errText);
+      }
     } catch (err) {
       console.error("Error sending text", err);
     }
