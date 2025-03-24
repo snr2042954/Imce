@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Realtime Avatar</title>
+</head>
+<body>
+<h1>Interactive Realtime Avatar Demo</h1>
+<div id="avatar-container">
+  <!-- This is where your interactive avatar would be rendered -->
+  <p>Connecting to interactive avatar...</p>
+</div>
+
+<script type="text/javascript">
+  // The realtimeEndpoint variable is provided by the Flask backend.
+  const realtimeEndpoint = "{{ realtime_endpoint }}";
+  console.log("Realtime endpoint:", realtimeEndpoint);
+
+  // Create a WebSocket connection using the realtime endpoint.
+  const socket = new WebSocket(realtimeEndpoint);
+
+  // When the connection opens, send an initialization message.
+  socket.addEventListener('open', function (event) {
+      console.log('WebSocket connection established.');
+      // Example: send an init message.
+      socket.send(JSON.stringify({action: 'init', message: 'Hello, avatar!'}));
+  });
+
+  // Listen for messages from the server.
+  socket.addEventListener('message', function (event) {
+      console.log('Message from server:', event.data);
+      // Update the avatar container with the received data.
+      const avatarContainer = document.getElementById('avatar-container');
+      avatarContainer.innerHTML = '<p>Received data: ' + event.data + '</p>';
+  });
+
+  // Log any errors.
+  socket.addEventListener('error', function (error) {
+      console.error('WebSocket error:', error);
+  });
+
+  // Log when the connection is closed.
+  socket.addEventListener('close', function (event) {
+      console.log('WebSocket connection closed.');
+  });
+</script>
+</body>
+</html>
+

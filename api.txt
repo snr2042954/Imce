@@ -1,88 +1,117 @@
-<script>
-  !function(window) {
-    const host = "https://labs.heygen.com",
-      url = host + "/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiIyZmU3ZTBiYzk3NmM0ZWExYWRhZmY5MWFm%0D%0AYjBjNjhlYyIsInByZXZpZXdJbWciOiJodHRwczovL2ZpbGVzMi5oZXlnZW4uYWkvYXZhdGFyL3Yz%0D%0ALzJmZTdlMGJjOTc2YzRlYTFhZGFmZjkxYWZiMGM2OGVjL2Z1bGwvMi4yL3ByZXZpZXdfdGFyZ2V0%0D%0ALndlYnAiLCJuZWVkUmVtb3ZlQmFja2dyb3VuZCI6ZmFsc2UsImtub3dsZWRnZUJhc2VJZCI6Ijk2%0D%0AMmY5ZmViMDAyYjRlMmY5Y2I4MDUzOWI4YTBiODQ2IiwidXNlcm5hbWUiOiI5ZTE4MTZlNTFkYjE0%0D%0ANmMxYWRiNjc4NjhkNWJkMDM2NyJ9&inIFrame=1",
-      clientWidth = document.body.clientWidth,
-      wrapDiv = document.createElement("div");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HeyGen Interactive Avatar Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      text-align: center;
+      padding: 20px;
+    }
+    #avatarContainer {
+      margin: 20px auto;
+      width: 640px;
+      height: 480px;
+      background-color: #000;
+      position: relative;
+      border: 2px solid #ccc;
+    }
+    #videoElement {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .control-button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>HeyGen Interactive Avatar Demo</h1>
+  <div id="avatarContainer">
+    <!-- Video element where the avatar stream will be rendered -->
+    <video id="videoElement" autoplay playsinline muted></video>
+  </div>
+  <div>
+    <button id="startBtn" class="control-button">Start Streaming</button>
+    <button id="stopBtn" class="control-button">Stop Streaming</button>
+  </div>
 
-    wrapDiv.id = "heygen-streaming-embed";
+  <!-- LiveKit client SDK script (required for streaming integration) -->
+  <script src="https://cdn.livekit.io/sdk/livekit-client.js"></script>
+  <!-- HeyGen Streaming API script (assumed provided by HeyGen) -->
+  <script src="https://cdn.heygen.com/sdk/heygen-streaming.js"></script>
+  <script>
+    // This example demonstrates a production integration of HeyGen's Streaming API with LiveKit v2.
+    // Replace placeholder values with your actual LiveKit server URL, token, and HeyGen configuration.
 
-    const container = document.createElement("div");
-    container.id = "heygen-streaming-container";
+    let room;
+    let localParticipant;
+    const videoElement = document.getElementById('videoElement');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
 
-    const stylesheet = document.createElement("style");
-    stylesheet.innerHTML = `
-      #heygen-streaming-embed {
-        z-index: 9999;
-        position: fixed;
-        left: 40px;
-        bottom: 40px;
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        border: 2px solid #fff;
-        box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);
-        transition: all linear 0.1s;
-        overflow: hidden;
+    // Function to start the HeyGen streaming session.
+    async function startStreaming() {
+      try {
+        // Replace these with your actual LiveKit server details from your HeyGen integration.
+        const liveKitUrl = 'wss://your-livekit-server-url';
+        const token = 'OWUxODE2ZTUxZGIxNDZjMWFkYjY3ODY4ZDViZDAzNjctMTc0MTY5OTMwOA==';
 
-        opacity: 0;
-        visibility: hidden;
+        // Connect to the LiveKit room.
+        room = await LiveKit.connect(liveKitUrl, token);
+        localParticipant = room.localParticipant;
+
+        // Use HeyGen's Streaming API to obtain the interactive avatar stream.
+        // This call should return a MediaStream from the HeyGen API.
+        const heygenStream = await HeyGenStreamingAPI.getAvatarStream({
+          avatarId: '2fe7e0bc976c4ea1adaff91afb0c68ec',  // Replace with your actual avatar identifier.
+          language: 'en',              // Optional: language or other configuration parameters.
+          // Additional configuration options can be added here as needed.
+        });
+
+        // Create a new LocalVideoTrack using the HeyGen stream's video track.
+        const videoTrack = new LiveKit.LocalVideoTrack(heygenStream.getVideoTracks()[0]);
+
+        // Publish the video track to the LiveKit room.
+        await localParticipant.publishTrack(videoTrack);
+
+        // Set the HeyGen stream to the video element for live preview.
+        videoElement.srcObject = heygenStream;
+
+        console.log('HeyGen avatar streaming started.');
+      } catch (error) {
+        console.error('Error starting HeyGen streaming:', error);
       }
-      #heygen-streaming-embed.show {
-        opacity: 1;
-        visibility: visible;
-      }
-      #heygen-streaming-embed.expand {
-        ${clientWidth < 540
-          ? "height: 266px; width: 96%; left: 50%; transform: translateX(-50%);"
-          : "height: 366px; width: calc(366px * 16 / 9);"}
-        border: 0;
-        border-radius: 8px;
-      }
-      #heygen-streaming-container {
-        width: 100%;
-        height: 100%;
-      }
-      #heygen-streaming-container iframe {
-        width: 100%;
-        height: 100%;
-        border: 0;
-      }
-    `;
+    }
 
-    const iframe = document.createElement("iframe");
-    iframe.allowFullscreen = false;
-    iframe.title = "Streaming Embed";
-    iframe.role = "dialog";
-    iframe.allow = "microphone";
-    iframe.src = url;
-
-    let visible = false,
-      initial = false;
-
-    window.addEventListener("message", (e => {
-      if (
-        e.origin === host &&
-        e.data &&
-        e.data.type &&
-        e.data.type === "streaming-embed"
-      ) {
-        if (e.data.action === "init") {
-          initial = true;
-          wrapDiv.classList.toggle("show", initial);
-        } else if (e.data.action === "show") {
-          visible = true;
-          wrapDiv.classList.toggle("expand", visible);
-        } else if (e.data.action === "hide") {
-          visible = false;
-          wrapDiv.classList.toggle("expand", visible);
+    // Function to stop the streaming session.
+    async function stopStreaming() {
+      try {
+        if (localParticipant) {
+          localParticipant.tracks.forEach(publication => {
+            publication.track.stop();
+            localParticipant.unpublishTrack(publication.track);
+          });
         }
+        if (room) {
+          await room.disconnect();
+        }
+        videoElement.srcObject = null;
+        console.log('Streaming stopped.');
+      } catch (error) {
+        console.error('Error stopping streaming:', error);
       }
-    }));
+    }
 
-    container.appendChild(iframe);
-    wrapDiv.appendChild(stylesheet);
-    wrapDiv.appendChild(container);
-    document.body.appendChild(wrapDiv);
-  }(globalThis);
-</script>
+    startBtn.addEventListener('click', startStreaming);
+    stopBtn.addEventListener('click', stopStreaming);
+  </script>
+</body>
+</html>
+
