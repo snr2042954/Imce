@@ -169,6 +169,24 @@
       color: #fff;
       cursor: pointer;
     }
+    /* Chat prompt styling: visible only in minimized mode */
+    #chatPrompt {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1rem;
+      background-color: rgba(255, 255, 255, 0.7); /* optional for readability */
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    /* Hide the chat prompt when the container is expanded */
+    #heygen-streaming-embed.expand #chatPrompt {
+      display: none;
+    }
   </style>
   <!-- Include LiveKit Client Library -->
   <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
@@ -200,6 +218,8 @@
 
 <!-- Streaming Container (Avatar) -->
 <div id="heygen-streaming-embed">
+  <!-- Chat prompt overlay for minimized state -->
+  <div id="chatPrompt">Click here to chat</div>
   <!-- Fallback image is always shown when no session is active -->
   <img id="fallbackImage" src="{{ url_for('static', filename='imcepicture.jpg') }}" alt="Avatar fallback">
   <!-- The video element fills the container (hidden until session starts) -->
