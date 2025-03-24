@@ -1,5 +1,5 @@
 from flask import Flask, render_template_string
-
+import numpy as np
 app = Flask(__name__)
 
 html_content = """<!DOCTYPE html>
