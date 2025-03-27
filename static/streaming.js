@@ -17,7 +17,7 @@ let sessionToken = null;
 let partialMessage = "";
 
 // Configuration constants for the avatar and API
-const AVATAR_ID = "Santa_Fireplace_Front_public";
+const AVATAR_ID = "2fe7e0bc976c4ea1adaff91afb0c68ec";
 const API_CONFIG = {
   serverUrl: "https://api.heygen.com",
 };
